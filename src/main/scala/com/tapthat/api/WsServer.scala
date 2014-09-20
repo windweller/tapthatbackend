@@ -1,8 +1,12 @@
 package com.tapthat.api
 
 import java.net.InetSocketAddress
+import org.java_websocket.WebSocket
 
 import akka.actor.ActorRef
+import org.java_websocket.framing.CloseFrame
+import org.java_websocket.handshake.ClientHandshake
+import org.java_websocket.server._
 
 
 class WsServer (val port: Int) extends WebSocketServer(new InetSocketAddress(port)) {

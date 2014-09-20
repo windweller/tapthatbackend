@@ -1,28 +1,30 @@
 package com.tapthat
 
-
 import akka.actor.{Props, ActorSystem}
 import akka.io.{IO, Tcp}
 import com.tapthat.api.{RootApis, WsServer, MainActors}
 import spray.can.Http
 import com.tapthat.models.pgdb._
+import org.java_websocket.WebSocket
 
 object Boot extends App with MainActors with RootApis {
 
   //construct database tables; it needs improvement
   implicit lazy val system = ActorSystem("mturk-survey")
 
-  DAL.databaseInit()
+//  DAL.databaseInit()
 
   //wss is not working for some reason
   private val ws = new WsServer(Config.portWs)
-  ws.forResource("/ws/script", Some(processActor))
+  ws.forResource("/ws/canvas", Some(processActor))
   ws.start()
 
   sys.addShutdownHook({system.shutdown(); ws.stop()})
 
   IO(Http) ! Http.Bind(rootService, interface = Config.host, port = Config.portHTTP)
 }
+
+//'postgres://root:gwBbcG0D5XqCEHZm@172.17.42.1:49153/db'
 
 object Config {
   import com.typesafe.config.ConfigFactory
@@ -40,7 +42,7 @@ object Config {
 
   val tempConnect = config.getString("db.postgresql.connect")
   val dbConnect = if (!tempConnect.contains("postgresql"))
-    "jdbc:"+tempConnect.replace("postgres", "postgresql").replace("172.17.42.1", "104.131.7.141")
+    "jdbc:"+tempConnect.replace("postgres", "postgresql").replace("172.17.42.1", "104.131.201.160")
   else tempConnect
 
   val dbURL = extractPattern.replaceFirstIn(dbConnect, "//")
